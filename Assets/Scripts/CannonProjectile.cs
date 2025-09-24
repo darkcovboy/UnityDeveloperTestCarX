@@ -6,8 +6,8 @@ public class CannonProjectile : MonoBehaviour {
 	public int m_damage = 10;
 
 	void Update () {
-		var translation = transform.forward * m_speed;
-		transform.Translate (translation);
+		var translation = transform.forward * m_speed *Time.deltaTime;
+		transform.Translate (translation,Space.World);
 	}
 
 	void OnTriggerEnter(Collider other) {
@@ -16,7 +16,9 @@ public class CannonProjectile : MonoBehaviour {
 			return;
 
 		monster.m_hp -= m_damage;
+		Debug.Log("Projectile Hit");
 		if (monster.m_hp <= 0) {
+			
 			Destroy (monster.gameObject);
 		}
 		Destroy (gameObject);
