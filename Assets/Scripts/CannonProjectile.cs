@@ -1,13 +1,43 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using System.Collections;
 
 public class CannonProjectile : MonoBehaviour {
 	public float m_speed = 0.2f;
+	public float m_speedBalistic = 5f;
 	public int m_damage = 10;
+	
+	private Rigidbody m_rigidbody;
+	
+	private bool m_isKinematic;
 
-	void Update () {
-		var translation = transform.forward * m_speed *Time.deltaTime;
-		transform.Translate (translation,Space.World);
+	private void Awake()
+	{
+		m_rigidbody = GetComponent<Rigidbody>();
+	}
+
+	public void Launch(Vector3 velocity, bool isKinematic)
+	{
+		m_isKinematic = isKinematic;
+
+		if (m_isKinematic)
+		{
+			m_rigidbody.isKinematic = true;
+		}
+		else
+		{
+			m_rigidbody.isKinematic = false;
+			m_rigidbody.velocity = velocity;
+		}
+	}
+
+	void Update () 
+	{
+		if (m_isKinematic)
+		{
+			var translation = transform.forward * m_speed *Time.deltaTime;
+			transform.Translate (translation,Space.World);
+		}
 	}
 
 	void OnTriggerEnter(Collider other) {
@@ -16,7 +46,6 @@ public class CannonProjectile : MonoBehaviour {
 			return;
 
 		monster.m_hp -= m_damage;
-		Debug.Log("Projectile Hit");
 		if (monster.m_hp <= 0) {
 			
 			Destroy (monster.gameObject);
