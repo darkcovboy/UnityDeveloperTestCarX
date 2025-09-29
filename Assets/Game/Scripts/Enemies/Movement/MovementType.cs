@@ -4,6 +4,7 @@
     {
         Direct,
         Accelerating,
-        Circular
+        Circular,
+        Waypoint
     }
 }

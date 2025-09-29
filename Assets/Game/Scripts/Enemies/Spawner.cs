@@ -16,8 +16,9 @@ namespace Game.Scripts.Enemies
 		[SerializeField, Min(0.1f)] private float _interval = 3f;
 		[FormerlySerializedAs("m_moveTarget")]
 		[SerializeField] private Transform _target;
-
 		[SerializeField] private Transform _towerPoint;
+		
+		[SerializeField] private Transform[] _waypoints;
 		//public FlyingShield m_flyingShieldPrefab;
 
 		private Coroutine _spawnCoroutine;
@@ -54,6 +55,7 @@ namespace Game.Scripts.Enemies
 				MovementType.Accelerating => new AcceleratingMovement(_target, _monsterConfig.Speed,
 					_monsterConfig.Acceleration),
 				MovementType.Circular => new CircularMovement(_towerPoint, _monsterConfig.Speed,_monsterConfig.Radius, _monsterConfig.AngularSpeed),
+				MovementType.Waypoint => new WaypointMovement(_waypoints, _monsterConfig.WaypointsSpeed),
 				_ => new DirectMovement(_target, _monsterConfig.Speed)
 			};
 		}

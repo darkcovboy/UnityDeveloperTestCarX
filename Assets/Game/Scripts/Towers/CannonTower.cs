@@ -35,10 +35,7 @@ namespace Game.Scripts.Towers
             {
                 float projectileSpeed = ((KinematicProjectile)Factory.GetPrefab(ProjectileType.Kinematic)).Speed;
 
-                float distance = Vector3.Distance(_shootPoint.position, target.transform.position);
-                float t = distance / projectileSpeed;
-
-                Vector3 aimPoint = target.Movement.GetFuturePosition(t);
+                Vector3 aimPoint = GetIterativePredictedPosition(_shootPoint.position, target, projectileSpeed);
                 
                 Vector3 weaponToAimDirection = (aimPoint - _shootPoint.position).normalized;
                 float currentAngle = Vector3.Angle(_cannon.forward, weaponToAimDirection);
@@ -71,13 +68,11 @@ namespace Game.Scripts.Towers
         private void RotateDirect(Monster target)
         {
             float projectileSpeed = ((KinematicProjectile)Factory.GetPrefab(ProjectileType.Kinematic)).Speed;
-
-            float distance = Vector3.Distance(_shootPoint.position, target.transform.position);
-            float t = distance / projectileSpeed;
-
-            Vector3 aimPoint = target.Movement.GetFuturePosition(t);
             
+            Vector3 aimPoint = GetIterativePredictedPosition(_shootPoint.position, target, projectileSpeed);
+
             Vector3 direction = (aimPoint - _shootPoint.position).normalized;
+
 
             Vector3 flatDirection = new Vector3(direction.x, 0, direction.z);
             if (flatDirection.sqrMagnitude > 0.001f)
@@ -97,6 +92,21 @@ namespace Game.Scripts.Towers
                 targetRotX,
                 _rotationSpeed * Time.deltaTime
             );
+        }
+        
+        private Vector3 GetIterativePredictedPosition(Vector3 shooterPos, Monster target, float projectileSpeed, int iterations = 3)
+        {
+            Vector3 predicted = target.transform.position;
+
+            for (int i = 0; i < iterations; i++)
+            {
+                float distance = Vector3.Distance(shooterPos, predicted);
+                float t = distance / projectileSpeed;
+
+                predicted = target.Movement.GetFuturePosition(t);
+            }
+
+            return predicted;
         }
 
         private void RotateParabolic(Monster target)

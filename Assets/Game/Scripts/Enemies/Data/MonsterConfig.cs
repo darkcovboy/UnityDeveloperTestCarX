@@ -13,6 +13,7 @@ namespace Game.Scripts.Enemies.Data
         [SerializeField, Min(0)] private float _acceleration = 0.5f;
         [SerializeField, Min(0)] private float _radius = 5f;
         [SerializeField, Min(0)] private float _angularSpeed = 1f;
+        [SerializeField,Min(0)] private float _waypointsSpeed = 1f;
         [Title("Stats")]
         [SerializeField, Min(1)] private float _maxHealth = 30;
         public float Speed => _speed;
@@ -22,5 +23,6 @@ namespace Game.Scripts.Enemies.Data
         
         public float Radius => _radius;
         public float AngularSpeed => _angularSpeed;
+        public float WaypointsSpeed => _waypointsSpeed;
     }
 }
