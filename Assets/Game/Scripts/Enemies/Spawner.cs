@@ -16,6 +16,8 @@ namespace Game.Scripts.Enemies
 		[SerializeField, Min(0.1f)] private float _interval = 3f;
 		[FormerlySerializedAs("m_moveTarget")]
 		[SerializeField] private Transform _target;
+
+		[SerializeField] private Transform _towerPoint;
 		//public FlyingShield m_flyingShieldPrefab;
 
 		private Coroutine _spawnCoroutine;
@@ -51,6 +53,7 @@ namespace Game.Scripts.Enemies
 				MovementType.Direct => new DirectMovement(_target,_monsterConfig.Speed),
 				MovementType.Accelerating => new AcceleratingMovement(_target, _monsterConfig.Speed,
 					_monsterConfig.Acceleration),
+				MovementType.Circular => new CircularMovement(_towerPoint, _monsterConfig.Speed,_monsterConfig.Radius, _monsterConfig.AngularSpeed),
 				_ => new DirectMovement(_target, _monsterConfig.Speed)
 			};
 		}

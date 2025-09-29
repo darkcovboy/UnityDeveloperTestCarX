@@ -3,6 +3,7 @@
     public enum MovementType
     {
         Direct,
-        Accelerating
+        Accelerating,
+        Circular
     }
 }
