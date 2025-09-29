@@ -33,13 +33,13 @@ namespace Game.Scripts.Towers
         {
             if (_fireMode == FireMode.Direct)
             {
-                Vector3 aimPoint = BallisticMath.GetPredictedPosition(
-                    _shootPoint.position,
-                    target.transform.position,
-                    target.Movement.Velocity,
-                    ((KinematicProjectile)Factory.GetPrefab(ProjectileType.Kinematic)).Speed
-                );
+                float projectileSpeed = ((KinematicProjectile)Factory.GetPrefab(ProjectileType.Kinematic)).Speed;
 
+                float distance = Vector3.Distance(_shootPoint.position, target.transform.position);
+                float t = distance / projectileSpeed;
+
+                Vector3 aimPoint = target.Movement.GetFuturePosition(t);
+                
                 Vector3 weaponToAimDirection = (aimPoint - _shootPoint.position).normalized;
                 float currentAngle = Vector3.Angle(_cannon.forward, weaponToAimDirection);
 
@@ -70,9 +70,13 @@ namespace Game.Scripts.Towers
     
         private void RotateDirect(Monster target)
         {
-            Vector3 aimPoint = BallisticMath.GetPredictedPosition(_shootPoint.position, target.transform.position,
-                target.Movement.Velocity, ((KinematicProjectile)Factory.GetPrefab(ProjectileType.Kinematic)).Speed);
+            float projectileSpeed = ((KinematicProjectile)Factory.GetPrefab(ProjectileType.Kinematic)).Speed;
 
+            float distance = Vector3.Distance(_shootPoint.position, target.transform.position);
+            float t = distance / projectileSpeed;
+
+            Vector3 aimPoint = target.Movement.GetFuturePosition(t);
+            
             Vector3 direction = (aimPoint - _shootPoint.position).normalized;
 
             Vector3 flatDirection = new Vector3(direction.x, 0, direction.z);
@@ -111,7 +115,7 @@ namespace Game.Scripts.Towers
             float x = toTargetXZ.magnitude;
             float t = x / (launchSpeed * Mathf.Cos(angleRad));
 
-            Vector3 predicted = target.transform.position + target.Movement.Velocity * t;
+            Vector3 predicted = target.Movement.GetFuturePosition(t);
 
             Vector3 flatDirection = new Vector3(predicted.x - transform.position.x, 0, predicted.z - transform.position.z);
             if (flatDirection.sqrMagnitude > 0.001f)
@@ -135,23 +139,12 @@ namespace Game.Scripts.Towers
         private void ShootParabolic(Monster target)
         {
             float angleRad = _parabolicAngle * Mathf.Deg2Rad;
-
-            float launchSpeed =
-                BallisticMath.CalculateLaunchSpeed(_shootPoint.position, target.transform.position, angleRad);
-            if (launchSpeed <= 0f) return;
-
-            Vector3 toTargetXZ = new Vector3(
-                target.transform.position.x - _shootPoint.position.x,
-                0,
-                target.transform.position.z - _shootPoint.position.z);
-
-            float x = toTargetXZ.magnitude;
-            float t = x / (launchSpeed * Mathf.Cos(angleRad));
-
-            Vector3 predicted = target.transform.position + target.Movement.Velocity * t;
             
-            launchSpeed = BallisticMath.CalculateLaunchSpeed(_shootPoint.position, predicted, angleRad);
+            Vector3 predicted = GetPredictedPosition(_shootPoint, target, angleRad);
+
+            float launchSpeed = BallisticMath.CalculateLaunchSpeed(_shootPoint.position, predicted, angleRad);
             if (launchSpeed <= 0f) return;
+
 
             var projectileObj = Factory.GetProjectile(ProjectileType.Physics, _shootPoint.position, Quaternion.identity);
             var projectile = (PhysicsProjectile)projectileObj;
@@ -164,6 +157,32 @@ namespace Game.Scripts.Towers
 
             projectile.Launch(velocity);
         }
+        
+        private Vector3 GetPredictedPosition(Transform shooter, Monster target, float angleRad, int iterations = 5)
+        {
+            Vector3 predicted = target.transform.position;
+
+            float launchSpeed = BallisticMath.CalculateLaunchSpeed(shooter.position, predicted, angleRad);
+            if (launchSpeed <= 0f)
+                return predicted;
+
+            for (int i = 0; i < iterations; i++)
+            {
+                Vector3 toTargetXZ = new Vector3(predicted.x - shooter.position.x, 0, predicted.z - shooter.position.z);
+                float x = toTargetXZ.magnitude;
+
+                float t = x / (launchSpeed * Mathf.Cos(angleRad));
+
+                predicted = target.Movement.GetFuturePosition(t);
+
+                launchSpeed = BallisticMath.CalculateLaunchSpeed(shooter.position, predicted, angleRad);
+                if (launchSpeed <= 0f)
+                    break;
+            }
+
+            return predicted;
+        }
+
 
         public enum FireMode
         {

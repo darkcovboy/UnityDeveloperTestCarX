@@ -21,7 +21,7 @@ namespace Game.Scripts.Enemies.Movement
         {
             if (_movementStrategy == null) return;
 
-            Velocity = _movementStrategy.GetVelocity(transform, _config.Speed);
+            Velocity = _movementStrategy.GetVelocity(transform);
             transform.position += Velocity * Time.deltaTime;
 
             if (_movementStrategy.HasReachedDestination(transform, _config.ReachDistance))
@@ -29,5 +29,7 @@ namespace Game.Scripts.Enemies.Movement
                 Destroy(gameObject);
             }
         }
+
+        public Vector3 GetFuturePosition(float t) => _movementStrategy.GetFuturePosition(transform, t);
     }
 }

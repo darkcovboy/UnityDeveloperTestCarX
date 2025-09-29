@@ -10,10 +10,12 @@ namespace Game.Scripts.Enemies.Data
         [Title("Movement Settings")]
         [SerializeField, Min(0)] private float _speed = 3f;
         [SerializeField] private float _reachDistance = 0.3f;
+        [SerializeField, Min(0)] private float _acceleration = 0.5f;
         [Title("Stats")]
         [SerializeField, Min(1)] private float _maxHealth = 30;
         public float Speed => _speed;
         public float MaxHealth => _maxHealth;
         public float ReachDistance => _reachDistance;
+        public float Acceleration => _acceleration;
     }
 }

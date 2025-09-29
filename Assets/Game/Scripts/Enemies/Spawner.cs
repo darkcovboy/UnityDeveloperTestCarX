@@ -20,11 +20,13 @@ namespace Game.Scripts.Enemies
 
 		private Coroutine _spawnCoroutine;
 		private MonsterFactory _monsterFactory;
+		private MonsterConfig _monsterConfig;
 
 		[Inject]
-		public void Construct(MonsterFactory factory)
+		public void Construct(MonsterConfig config,MonsterFactory factory)
 		{
 			_monsterFactory = factory;
+			_monsterConfig = config;
 		}
 
 		private void Start()
@@ -44,7 +46,13 @@ namespace Game.Scripts.Enemies
 
 		private IMovementStrategy CreateStrategy()
 		{
-			return new DirectMovement(_target);
+			return _movementType switch
+			{
+				MovementType.Direct => new DirectMovement(_target,_monsterConfig.Speed),
+				MovementType.Accelerating => new AcceleratingMovement(_target, _monsterConfig.Speed,
+					_monsterConfig.Acceleration),
+				_ => new DirectMovement(_target, _monsterConfig.Speed)
+			};
 		}
 
 		private void OnDestroy()
