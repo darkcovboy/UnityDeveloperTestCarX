@@ -66,10 +66,26 @@ namespace Game.Scripts.Enemies.Movement
         {
             if (!_reachedCircle)
             {
-                Vector3 dirToCenter = (transform.position - _center.position).normalized;
+                Vector3 dirToCenter = transform.position - _center.position;
+                dirToCenter.y = 0;
+                dirToCenter.Normalize();
+
                 Vector3 circlePoint = _center.position + dirToCenter * _radius;
-                return Vector3.Lerp(transform.position, circlePoint, t);
+                circlePoint.y = transform.position.y;
+
+                Vector3 toCircle = circlePoint - transform.position;
+                float distance = _speed * t;
+
+                if (distance >= toCircle.magnitude)
+                {
+                    return circlePoint;
+                }
+                else
+                {
+                    return transform.position + toCircle.normalized * distance;
+                }
             }
+
 
             float futureAngle = _angle + _angularSpeed * t;
             Vector3 offset = new Vector3(Mathf.Cos(futureAngle), 0, Mathf.Sin(futureAngle)) * _radius;
